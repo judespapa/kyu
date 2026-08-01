@@ -319,8 +319,17 @@ function AlbumPage() {
     if (!album) return;
     const host = shareInfo?.lan?.[0] || shareInfo?.local || window.location.origin;
     const text = `Join our kyu album “${album.title}” — code ${album.code}. Open ${host} and enter the code.`;
-    await navigator.clipboard.writeText(text);
-    setToast("Invite copied");
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        setToast("Invite copied");
+        return;
+      }
+      throw new Error("Clipboard unavailable");
+    } catch {
+      window.prompt("Copy this invite for your family:", text);
+      setToast(`Share code ${album.code}`);
+    }
   }
 
   async function saveCaption(photoId: string) {
